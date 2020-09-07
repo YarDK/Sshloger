@@ -1,0 +1,1 @@
+/var/log/remote/4talk-prod-front-node1.ru.mgo.su/2020/08/31/11/node.log.gz:Aug 31 11:15:55 4talk-prod-front-node1.ru.mgo.su node[22404]: [2] USER: 401496829@mtalker.mangotele.com REQ [1598861755249.7827]: message/send, {"messages":[{"localId":"762a58b31ae541e999c037e3b1584c62","payload":{"body":"Елена привет"},"to":"401496806@mtalker.mangotele.com","type":"text"}]}
