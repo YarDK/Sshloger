@@ -1,11 +1,43 @@
 import com.jcraft.jsch.*;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestSSHConnect {
     public static void main(String[] arg) {
+        String[] abonets = new String[]{"401497023", "402158256", "402158259", "402158265", "402158271", "402158280", "402158302", "401497049", "402158225", "401496711"};
+        String abonentId = abonets[0];
+
+        for(int i = 1; i < 10; i++){
+            String command = String.format("zgrep %s /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/0%s/*/node.log.gz | grep body | grep REQ", abonentId, i);
+            String file_path = String.format("D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\data\\%s_%s.txt", abonentId, i);
+            assertTrue(new File(file_path).exists());
+            writeToFile(file_path, serverRequest(command));
+        }
+
+        for(int i = 10; i < 32; i++){
+            String command = String.format("zgrep %s /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/%s/*/node.log.gz | grep body | grep REQ", abonentId, i);
+            String file_path = String.format("D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\data\\%s_%s.txt", abonentId, i);
+            assertTrue(new File(file_path).exists());
+            writeToFile(file_path, serverRequest(command));
+        }
+
+    }
+
+    private static void writeToFile(String file_path, List<String> logs) {
+        try {
+            PrintWriter writer = new PrintWriter(file_path, "UTF-8");
+            logs.forEach(writer::println);
+            writer.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private static List<String> serverRequest(String command) {
         try {
             JSch jsch = new JSch();
 
@@ -13,7 +45,6 @@ public class TestSSHConnect {
             String host = "log-4talk.ru.mgo.su";
             int port = 22;
             String privateKey = "D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\korotyshov4talk_private.PPK";
-            String command = "zgrep 401496806 /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/31/*/node.log.gz | grep body | grep REQ";
             jsch.addIdentity(privateKey);
             System.out.println("identity added ");
             Session session = jsch.getSession(user, host, port);
@@ -32,17 +63,19 @@ public class TestSSHConnect {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String str;
-
+            List<String> logs = new ArrayList<>();
             while ((str = reader.readLine()) != null){
-                System.out.println(str);
+                logs.add(str);
             }
 
             session.disconnect();
             channel.disconnect();
             System.out.println("\nFinish");
+            return logs;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 }
