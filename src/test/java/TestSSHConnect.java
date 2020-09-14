@@ -4,35 +4,31 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
 
 public class TestSSHConnect {
+
     public static void main(String[] arg) {
-        String[] abonets = new String[]{"401497023", "402158256", "402158259", "402158265", "402158271", "402158280", "402158302", "401497049", "402158225", "401496711"};
-        String abonentId = abonets[0];
+        String[] abonents = new String[]{"401497023", "402158255"};
 
-        for(int i = 1; i < 10; i++){
-            String command = String.format("zgrep %s /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/0%s/*/node.log.gz | grep body | grep REQ", abonentId, i);
-            String file_path = String.format("D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\data\\%s_%s.txt", abonentId, i);
-            assertTrue(new File(file_path).exists());
-            writeToFile(file_path, serverRequest(command));
-        }
-
-        for(int i = 10; i < 32; i++){
-            String command = String.format("zgrep %s /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/%s/*/node.log.gz | grep body | grep REQ", abonentId, i);
-            String file_path = String.format("D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\data\\%s_%s.txt", abonentId, i);
-            assertTrue(new File(file_path).exists());
-            writeToFile(file_path, serverRequest(command));
-        }
+        String command = String.format("zgrep %s /var/log/remote/4talk-prod-front-node*.ru.mgo.su/2020/08/0%s/*/node.log.gz | grep body | grep REQ", abonents[1], 3);
+        String file_path = String.format("D:\\IdeaProjects\\Sshloger\\src\\test\\resources\\data\\%s_%s.txt", abonents[1], 3);
+        writeToFile(file_path, serverRequest(command));
+        System.out.println(new File(file_path).exists() ? "File exist" : "WORN - FILE NOT CREATED");
 
     }
 
     private static void writeToFile(String file_path, List<String> logs) {
         try {
             PrintWriter writer = new PrintWriter(file_path, "UTF-8");
-            logs.forEach(writer::println);
+            logs.forEach(l -> {
+                try {
+                    writer.println(new String(l.getBytes(), "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            });
             writer.close();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -64,7 +60,7 @@ public class TestSSHConnect {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             String str;
             List<String> logs = new ArrayList<>();
-            while ((str = reader.readLine()) != null){
+            while ((str = reader.readLine()) != null) {
                 logs.add(str);
             }
 
